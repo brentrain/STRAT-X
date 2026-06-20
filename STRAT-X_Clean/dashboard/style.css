@@ -1,0 +1,22 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #121214;
+    color: #e1e1e6;
+    margin: 0;
+    padding: 20px;
+}
+.container { max-width: 1000px; margin: 0 auto; }
+header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #29292e; padding-bottom: 15px; margin-bottom: 20px; }
+h1 { margin: 0; font-size: 24px; color: #ffffff; }
+#time-display { font-family: monospace; font-size: 16px; color: #a4a4a8; }
+.status-panel { background-color: #1a1a1e; border: 1px solid #29292e; border-radius: 8px; padding: 20px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; }
+.status-left { display: flex; align-items: center; }
+.status-light { width: 20px; height: 20px; border-radius: 50%; background-color: #888888; margin-right: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); transition: background-color 0.3s ease, box-shadow 0.3s ease; }
+.status-text { font-size: 18px; font-weight: bold; }
+#assessment-text { color: #a4a4a8; font-size: 14px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+.card { background-color: #1a1a1e; border: 1px solid #29292e; border-radius: 8px; padding: 20px; text-align: center; }
+.card h3 { margin: 0 0 10px 0; color: #a4a4a8; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+.metric-value { font-size: 36px; font-weight: bold; color: #ffffff; font-family: monospace; }
+.log-panel { background-color: #1a1a1e; border: 1px solid #29292e; border-radius: 8px; padding: 20px; height: 200px; overflow-y: auto; font-family: monospace; font-size: 13px; }
+.log-entry { padding: 6px 0; border-bottom: 1px solid #222226; color: #c4c4cc; }
