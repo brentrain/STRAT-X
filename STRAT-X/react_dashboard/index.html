@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeartSenseAI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #0f172a;
+    }
+    .heart-icon {
+      transform: scale(1);
+      /* Smooth transition for both transform (beat) and fill (color change) */
+      transition: transform 0.1s ease-in-out, fill 0.3s ease-in-out;
+    }
+    .heart-beating {
+      transform: scale(1.15);
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^18.2.0",
+    "react/": "https://esm.sh/react@^18.2.0/",
+    "react-dom/": "https://esm.sh/react-dom@^18.2.0/",
+    "recharts": "https://esm.sh/recharts@2.12.7",
+    "@google/genai": "https://esm.sh/@google/genai@^1.4.0",
+    "@/App": "./App.tsx",
+    "@/components/PatientRowDisplay": "./components/PatientRowDisplay.tsx",
+    "@/components/LoginScreen": "./components/LoginScreen.tsx",
+    "@/components/CreateAccountScreen": "./components/CreateAccountScreen.tsx",
+    "@/components/VitalsHistoryModal": "./components/VitalsHistoryModal.tsx",
+    "@/components/CategorizedRhythmMenu": "./components/CategorizedRhythmMenu.tsx",
+    "@/components/SimulatorPanel": "./components/SimulatorPanel.tsx",
+    "@/components/AddPatientModal": "./components/AddPatientModal.tsx",
+    "@/components/ModifyPatientModal": "./components/ModifyPatientModal.tsx",
+    "@/components/ConnectMonitorModal": "./components/ConnectMonitorModal.tsx",
+    "@/components/AlertAudioHandler": "./components/AlertAudioHandler.tsx"
+  }
+}
+</script>
+</head>
+<body class="text-slate-200">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx" defer></script>
+</body>
+</html>

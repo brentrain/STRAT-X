@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>STRAT-X // FLIGHT SURGEON TELEMETRY CONSOLE</title>
+  <style>
+    :root {
+      --bg-void: #07090d;
+      --alloy-dark: #0d1117;
+      --alloy-mid: #151b24;
+      --alloy-light: #1e2633;
+      --bezel-border: rgba(168, 188, 214, 0.18);
+      --bezel-specular: rgba(255, 255, 255, 0.08);
+      --text-primary: #eef4fc;
+      --text-secondary: #8d9cb0;
+      --text-dim: #566375;
+
+      /* Aerospace Telemetry Phosphors */
+      --phosphor-green: #2ee58f;
+      --phosphor-cyan: #38d9f5;
+      --phosphor-blue: #58a6ff;
+      --phosphor-amber: #f5b841;
+      --phosphor-violet: #b88cff;
+      --phosphor-coral: #ff6b6b;
+      --phosphor-mars: #e86f48;
+
+      --font-hud: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: "Cascadia Code", "Consolas", "SFMono-Regular", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-hud);
+      background-color: var(--bg-void);
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(56, 217, 245, 0.06) 0%, transparent 55%),
+        linear-gradient(rgba(141, 156, 176, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(141, 156, 176, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 28px 28px, 28px 28px;
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* =====================================================================
+       TOP COMMAND HEADER (BRUSHED TITANIUM CHASSIS)
+       ===================================================================== */
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      padding: 0.75rem 1.4rem;
+      background: linear-gradient(180deg, #19202b 0%, #10151d 55%, #0b0e14 100%);
+      border-bottom: 1px solid rgba(168, 188, 214, 0.22);
+      box-shadow:
+        inset 0 1px 0 var(--bezel-specular),
+        0 10px 30px rgba(0, 0, 0, 0.75);
+      position: relative;
+    }
+
+    .header-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .status-beacon {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--phosphor-green);
+      box-shadow: 0 0 10px var(--phosphor-green), 0 0 2px #fff;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #ffffff 0%, #a9bacf 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .mission-badge {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+      background: linear-gradient(180deg, rgba(56, 217, 245, 0.16) 0%, rgba(56, 217, 245, 0.05) 100%);
+      border: 1px solid rgba(56, 217, 245, 0.45);
+      color: var(--phosphor-cyan);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .meta {
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      font-size: 0.76rem;
+      letter-spacing: 0.03em;
+    }
+
+    .meta strong {
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    /* Metallic Machined Buttons */
+    .btn-metal {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.32rem 0.7rem;
+      border-radius: 4px;
+      border: 1px solid rgba(168, 188, 214, 0.25);
+      background: linear-gradient(180deg, #252e3d 0%, #161c26 100%);
+      color: var(--text-primary);
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.45);
+      transition: all 0.15s ease;
+    }
+
+    .btn-metal:hover {
+      border-color: var(--phosphor-cyan);
+      color: var(--phosphor-cyan);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 0 12px rgba(56, 217, 245, 0.22);
+    }
+
+    .btn-metal.accent {
+      border-color: rgba(56, 217, 245, 0.45);
+      color: var(--phosphor-cyan);
+    }
+
+    .btn-metal.warn:hover {
+      border-color: var(--phosphor-amber);
+      color: var(--phosphor-amber);
+    }
+
+    /* Trajectory Progress Bar */
+    .transit-track {
+      height: 5px;
+      background: #080a0e;
+      border-radius: 2px;
+      overflow: hidden;
+      border: 1px solid rgba(168, 188, 214, 0.18);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.85);
+    }
+
+    .transit-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38d9f5 0%, #2ee58f 65%, #e86f48 100%);
+      box-shadow: 0 0 10px rgba(56, 217, 245, 0.6);
+      transition: width 0.5s ease;
+    }
+
+    /* Mission Phase Selector Strip */
+    .timeline-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.38rem 0.6rem;
+      background: linear-gradient(180deg, #0b0e14 0%, #10151e 100%);
+      border: 1px solid rgba(168, 188, 214, 0.15);
+      border-radius: 4px;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.65);
+    }
+
+    .timeline-label {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-right: 0.25rem;
+    }
+
+    .phase-btn {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 600;
+      padding: 0.22rem 0.55rem;
+      border-radius: 3px;
+      border: 1px solid rgba(168, 188, 214, 0.16);
+      background: linear-gradient(180deg, #1b222e 0%, #121720 100%);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .phase-btn:hover {
+      color: #fff;
+      border-color: rgba(168, 188, 214, 0.4);
+    }
+
+    .phase-btn.active.theme-prelaunch {
+      background: linear-gradient(180deg, #333c4a 0%, #1f2530 100%);
+      border-color: #9fb0c7;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(159, 176, 199, 0.25);
+    }
+
+    .phase-btn.active.theme-high-g {
+      background: linear-gradient(180deg, rgba(255, 107, 107, 0.32) 0%, rgba(160, 35, 35, 0.25) 100%);
+      border-color: var(--phosphor-coral);
+      color: #ffd6d6;
+      box-shadow: 0 0 14px rgba(255, 107, 107, 0.35);
+    }
+
+    .phase-btn.active.theme-fluid-shift {
+      background: linear-gradient(180deg, rgba(56, 217, 245, 0.28) 0%, rgba(20, 110, 130, 0.22) 100%);
+      border-color: var(--phosphor-cyan);
+      color: #d4f8ff;
+      box-shadow: 0 0 14px rgba(56, 217, 245, 0.32);
+    }
+
+    .phase-btn.active.theme-nominal-0g {
+      background: linear-gradient(180deg, rgba(46, 229, 143, 0.26) 0%, rgba(18, 115, 70, 0.22) 100%);
+      border-color: var(--phosphor-green);
+      color: #d2ffe8;
+      box-shadow: 0 0 14px rgba(46, 229, 143, 0.3);
+    }
+
+    .phase-btn.active.theme-mars-surface {
+      background: linear-gradient(180deg, rgba(232, 111, 72, 0.32) 0%, rgba(145, 58, 30, 0.25) 100%);
+      border-color: var(--phosphor-mars);
+      color: #ffe0d6;
+      box-shadow: 0 0 14px rgba(232, 111, 72, 0.35);
+    }
+
+    /* ECLSS & Trajectory Sub-Console */
+    .eclss-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 0.36rem 0.7rem;
+      background: linear-gradient(90deg, rgba(56, 217, 245, 0.06) 0%, rgba(13, 17, 23, 0.85) 35%, rgba(13, 17, 23, 0.85) 100%);
+      border: 1px solid rgba(56, 217, 245, 0.22);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    .eclss-title {
+      font-weight: 700;
+      color: var(--phosphor-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.68rem;
+    }
+
+    .eclss-item { color: var(--text-secondary); }
+    .eclss-item strong { color: var(--text-primary); font-weight: 700; }
+    .eclss-item strong.g-val { color: var(--phosphor-coral); }
+    .eclss-item strong.co2-val { color: var(--phosphor-amber); }
+    .eclss-item strong.press-val { color: var(--phosphor-cyan); }
+    .eclss-item strong.rad-val { color: var(--phosphor-violet); }
+
+    /* =====================================================================
+       MAIN 2x4 AEROSPACE TELEMETRY GRID
+       ===================================================================== */
+    main {
+      padding: 0.85rem 1.4rem;
+      width: 100%;
+      max-width: 1840px;
+      margin: 0 auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+      width: 100%;
+    }
+
+    .card {
+      position: relative;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.0) 42%),
+        linear-gradient(180deg, #18202c 0%, #10151e 60%, #0b0e14 100%);
+      border: 1px solid var(--bezel-border);
+      border-radius: 6px;
+      padding: 0.6rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.36rem;
+      cursor: pointer;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+        0 8px 20px rgba(0, 0, 0, 0.55);
+      transition: border-color 0.5s ease, box-shadow 0.5s ease, transform 0.15s ease;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .card.theme-prelaunch {
+      border-color: rgba(159, 176, 199, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 16px rgba(159, 176, 199, 0.12);
+    }
+
+    .card.theme-high-g {
+      background:
+        linear-gradient(145deg, rgba(255, 107, 107, 0.16) 0%, rgba(245, 184, 65, 0.06) 45%, transparent 100%),
+        linear-gradient(180deg, #1d171d 0%, #12141c 100%);
+      border-color: rgba(255, 107, 107, 0.75);
+      box-shadow: inset 0 1px 0 rgba(255, 160, 160, 0.22), 0 0 22px rgba(255, 107, 107, 0.25);
+    }
+
+    .card.theme-fluid-shift {
+      background:
+        linear-gradient(145deg, rgba(56, 217, 245, 0.14) 0%, transparent 55%),
+        linear-gradient(180deg, #141f2b 0%, #0f151e 100%);
+      border-color: rgba(56, 217, 245, 0.68);
+      box-shadow: inset 0 1px 0 rgba(140, 235, 255, 0.2), 0 0 20px rgba(56, 217, 245, 0.22);
+    }
+
+    .card.theme-nominal-0g {
+      background:
+        linear-gradient(145deg, rgba(46, 229, 143, 0.11) 0%, transparent 55%),
+        linear-gradient(180deg, #131f22 0%, #0e141b 100%);
+      border-color: rgba(46, 229, 143, 0.62);
+      box-shadow: inset 0 1px 0 rgba(130, 255, 195, 0.18), 0 0 18px rgba(46, 229, 143, 0.18);
+    }
+
+    .card.theme-mars-surface {
+      background:
+        linear-gradient(145deg, rgba(232, 111, 72, 0.16) 0%, transparent 55%),
+        linear-gradient(180deg, #21191a 0%, #12141b 100%);
+      border-color: rgba(232, 111, 72, 0.72);
+      box-shadow: inset 0 1px 0 rgba(255, 175, 145, 0.2), 0 0 20px rgba(232, 111, 72, 0.24);
+    }
+
+    /* 1. Crew Name & Telemetry Header */
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid rgba(168, 188, 214, 0.12);
+      padding-bottom: 0.28rem;
+    }
+
+    .crew-ident {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 0;
+    }
+
+    .crew-code {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      padding: 0.1rem 0.38rem;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--phosphor-cyan);
+    }
+
+    .card-header strong {
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 0;
+    }
+
+    .dx {
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .g-badge {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 800;
+      padding: 0.1rem 0.42rem;
+      border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      background: rgba(8, 11, 16, 0.75);
+      border: 1px solid rgba(168, 188, 214, 0.25);
+      color: var(--text-primary);
+      letter-spacing: 0.04em;
+    }
+
+    .expand-hint {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      font-weight: 700;
+      color: var(--phosphor-cyan);
+      background: rgba(56, 217, 245, 0.09);
+      border: 1px solid rgba(56, 217, 245, 0.32);
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* 2. Rhythm & Physiological Phase Rationale */
+    .rhythm-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.24rem;
+    }
+
+    .pills { display: flex; flex-wrap: wrap; gap: 0.32rem; }
+
+    .pill {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 0.12rem 0.45rem;
+      border-radius: 3px;
+      background: rgba(10, 14, 20, 0.75);
+      border: 1px solid rgba(168, 188, 214, 0.2);
+      letter-spacing: 0.03em;
+    }
+
+    .pill.monitor {
+      border-color: rgba(46, 229, 143, 0.55);
+      color: var(--phosphor-green);
+      font-weight: 700;
+    }
+
+    .pill.monitor.tach {
+      border-color: rgba(255, 107, 107, 0.65);
+      color: var(--phosphor-coral);
+    }
+
+    .pill.space-tag {
+      border-color: rgba(56, 217, 245, 0.38);
+      color: var(--phosphor-cyan);
+    }
+
+    .pill.human-true {
+      border-color: rgba(88, 166, 255, 0.55);
+      color: var(--phosphor-blue);
+    }
+
+    .physio-note {
+      font-size: 0.7rem;
+      color: #c2cedd;
+      background: rgba(7, 10, 15, 0.65);
+      border-left: 2px solid var(--phosphor-cyan);
+      padding: 0.22rem 0.5rem;
+      border-radius: 0 3px 3px 0;
+      line-height: 1.3;
+    }
+
+    .physio-note strong {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--phosphor-cyan);
+    }
+
+    /* 3. Recessed Sensor Wells for Bold Color-Coded Vitals */
+    .vitals-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.32rem;
+      background: linear-gradient(180deg, #070a0f 0%, #0b0f17 100%);
+      border: 1px solid rgba(168, 188, 214, 0.14);
+      border-radius: 5px;
+      padding: 0.42rem 0.55rem;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.85);
+    }
+
+    .vitals-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .hr-compact {
+      display: flex;
+      align-items: baseline;
+      gap: 0.28rem;
+      padding: 0.12rem 0.45rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 4px;
+    }
+
+    .hr-num {
+      font-family: var(--font-mono);
+      font-size: 1.48rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--phosphor-green);
+      text-shadow: 0 0 12px rgba(46, 229, 143, 0.35);
+      font-variant-numeric: tabular-nums;
+      transition: color 0.4s ease;
+    }
+
+    .hr-num.high-g {
+      color: var(--phosphor-coral);
+      text-shadow: 0 0 12px rgba(255, 107, 107, 0.45);
+    }
+
+    .hr-label {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--phosphor-green);
+      opacity: 0.85;
+    }
+
+    .vitals-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .vital-pill {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.26rem;
+      padding: 0.16rem 0.42rem;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(168, 188, 214, 0.1);
+      border-radius: 3px;
+    }
+
+    .vital-lbl {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .vital-val {
+      font-weight: 800;
+      font-size: 0.84rem;
+    }
+
+    .v-bp { color: var(--phosphor-blue); }
+    .v-spo2 { color: var(--phosphor-cyan); }
+    .v-rr { color: var(--phosphor-amber); }
+    .v-hrv { color: var(--phosphor-violet); }
+    .v-temp { color: var(--phosphor-coral); }
+
+    .bar-wrap {
+      height: 3px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .bar-spo2 {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--phosphor-cyan), var(--phosphor-green));
+      box-shadow: 0 0 8px rgba(56, 217, 245, 0.5);
+      transition: width 0.3s ease;
+    }
+
+    .waveforms-row {
+      display: grid;
+      grid-template-columns: 2.5fr 1fr;
+      gap: 0.45rem;
+      align-items: stretch;
+    }
+
+    .ecg-wrap {
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(46, 229, 143, 0.28);
+      background: #050a08;
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
+    }
+
+    canvas.ecg-strip {
+      width: 100%;
+      height: 38px;
+      display: block;
+    }
+
+    .spark-wrap {
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(168, 188, 214, 0.16);
+      background: #070a0f;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.85);
+    }
+
+    canvas.spark {
+      width: 100%;
+      height: 38px;
+      display: block;
+    }
+
+    /* 4. Tactical Controls Bar */
+    .controls-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding-top: 0.12rem;
+    }
+
+    .rhythm-adj {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.32rem;
+    }
+
+    .rhythm-adj .hil-rhythm-select {
+      flex: 1 1 140px;
+      min-width: 110px;
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      padding: 0.2rem 0.35rem;
+      border-radius: 3px;
+      border: 1px solid rgba(168, 188, 214, 0.2);
+      background: #090c12;
+      color: var(--text-primary);
+    }
+
+    .btn-hil {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 0.2rem 0.48rem;
+      border-radius: 3px;
+      border: 1px solid rgba(168, 188, 214, 0.22);
+      background: linear-gradient(180deg, #222a38 0%, #141922 100%);
+      color: var(--text-primary);
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-hil:hover {
+      border-color: var(--phosphor-cyan);
+      color: var(--phosphor-cyan);
+    }
+
+    .banner-err {
+      display: none;
+      padding: 0.6rem 1rem;
+      background: #3d1818;
+      border-bottom: 1px solid var(--phosphor-coral);
+      color: #ffd6d6;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+
+    .banner-err.show { display: block; }
+
+    .report-toast {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      padding: 0.45rem 0.7rem;
+      background: rgba(46, 229, 143, 0.12);
+      border: 1px solid var(--phosphor-green);
+      border-radius: 4px;
+      color: #c8ffe4;
+    }
+
+    .report-toast.show { display: block; }
+
+    /* =====================================================================
+       ENLARGED AEROSPACE MODAL (24H / 7D / MISSION TO DATE TELEMETRY)
+       ===================================================================== */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(3, 5, 8, 0.86);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-panel {
+      background: linear-gradient(180deg, #171e29 0%, #0d1118 100%);
+      border: 1px solid rgba(56, 217, 245, 0.5);
+      border-radius: 8px;
+      width: 94vw;
+      max-width: 1380px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 1.15rem 1.4rem;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.14),
+        0 28px 70px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .modal-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+      border-bottom: 1px solid rgba(168, 188, 214, 0.16);
+      padding-bottom: 0.65rem;
+    }
+
+    .modal-title-group h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      letter-spacing: 0.04em;
+      color: #fff;
+    }
+
+    .modal-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-top: 0.22rem;
+    }
+
+    .modal-actions-top {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .range-tabs {
+      display: inline-flex;
+      background: #080b10;
+      border: 1px solid rgba(168, 188, 214, 0.2);
+      border-radius: 4px;
+      padding: 0.2rem;
+      gap: 0.2rem;
+    }
+
+    .range-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.32rem 0.72rem;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .range-tab.active {
+      background: linear-gradient(180deg, #38d9f5 0%, #1ea8c2 100%);
+      color: #05080c;
+    }
+
+    .btn-close-modal {
+      background: linear-gradient(180deg, #252e3d 0%, #151b24 100%);
+      border: 1px solid rgba(168, 188, 214, 0.25);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.36rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-close-modal:hover {
+      border-color: var(--phosphor-coral);
+      color: var(--phosphor-coral);
+    }
+
+    .modal-live-strip {
+      display: grid;
+      grid-template-columns: 1.5fr 1.5fr;
+      gap: 0.85rem;
+      background: #080b10;
+      border: 1px solid rgba(168, 188, 214, 0.16);
+      border-radius: 6px;
+      padding: 0.75rem 0.95rem;
+      align-items: center;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-vitals-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.45rem;
+    }
+
+    .modal-vital-box {
+      background: linear-gradient(180deg, #141a24 0%, #0d1118 100%);
+      border: 1px solid rgba(168, 188, 214, 0.16);
+      border-radius: 4px;
+      padding: 0.45rem 0.52rem;
+    }
+
+    .modal-vital-box .lbl {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .modal-vital-box .val {
+      font-family: var(--font-mono);
+      font-size: 1.08rem;
+      font-weight: 800;
+      margin-top: 0.15rem;
+    }
+
+    .modal-ecg-box {
+      border: 1px solid rgba(46, 229, 143, 0.3);
+      border-radius: 5px;
+      overflow: hidden;
+      background: #050a08;
+    }
+
+    .modal-ecg-header {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: var(--phosphor-green);
+      padding: 0.25rem 0.55rem;
+      border-bottom: 1px solid rgba(46, 229, 143, 0.2);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    canvas.modal-ecg-canvas {
+      width: 100%;
+      height: 68px;
+      display: block;
+    }
+
+    .modal-charts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+
+    .history-chart-card {
+      background: #080b10;
+      border: 1px solid rgba(168, 188, 214, 0.16);
+      border-radius: 6px;
+      padding: 0.65rem 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .history-chart-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .history-chart-head h3 {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      color: var(--text-primary);
+    }
+
+    .history-stats {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+    }
+
+    .history-hover-readout {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--phosphor-cyan);
+      min-height: 1.1rem;
+    }
+
+    canvas.history-canvas {
+      width: 100%;
+      height: 185px;
+      display: block;
+      cursor: crosshair;
+      border-radius: 4px;
+      background: #05070b;
+    }
+
+    .modal-footer-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(168, 188, 214, 0.14);
+    }
+
+    .modal-period-note {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      max-width: 960px;
+      line-height: 1.38;
+    }
+  </style>
+</head>
+<body>
+  <div id="load-err" class="banner-err">TELEMETRY LINK OFFLINE // Start flight backend: <code>python icu_telemetry_server.py</code></div>
+  <header>
+    <div class="header-row">
+      <div class="brand-lockup">
+        <span class="status-beacon" id="status-beacon"></span>
+        <h1>STRAT-X // Flight Surgeon Telemetry</h1>
+      </div>
+      <span class="mission-badge" id="phase-badge">PHASE: PRE-LAUNCH</span>
+      <span class="meta">MET: <strong id="mission-day">Day 0.0 / 210</strong></span>
+      <span class="meta" id="clock"></span>
+      <div class="header-actions">
+        <button type="button" class="btn-metal" id="btn-pause">⏸ Hold Sim</button>
+        <button type="button" class="btn-metal accent" id="btn-report">Export Surgeon Log</button>
+        <button type="button" class="btn-metal warn" id="btn-session-reset">Reset Trajectory</button>
+      </div>
+    </div>
+
+    <div class="transit-track" title="210-Day Earth-to-Mars Transit Progress">
+      <div class="transit-fill" id="transit-fill"></div>
+    </div>
+
+    <div class="timeline-bar" id="timeline-bar" aria-label="210-Day Mars Trajectory Phases">
+      <span class="timeline-label">Trajectory Override:</span>
+      <button type="button" class="phase-btn theme-prelaunch" data-phase="prelaunch">01 // Pre-Launch (1.0g)</button>
+      <button type="button" class="phase-btn theme-high-g" data-phase="launch">02 // Max-Q &amp; TMI (+3.5g)</button>
+      <button type="button" class="phase-btn theme-fluid-shift" data-phase="fluid_shift">03 // Fluid Shift (0.0g)</button>
+      <button type="button" class="phase-btn theme-nominal-0g" data-phase="transit_0g">04 // Mars Transit (0.0g)</button>
+      <button type="button" class="phase-btn theme-high-g" data-phase="mars_edl">05 // Mars EDL (+2.8g)</button>
+      <button type="button" class="phase-btn theme-mars-surface" data-phase="mars_surface">06 // Mars Surface (0.38g)</button>
+    </div>
+
+    <div class="eclss-bar" aria-label="Cabin Life Support and Gravity Telemetry">
+      <span class="eclss-title">HAB ECLSS &amp; DSN LINK //</span>
+      <span class="eclss-item">ACCEL: <strong class="g-val" id="eclss-g">1.00g</strong></span>
+      <span class="eclss-item">pCO₂: <strong class="co2-val" id="eclss-co2">0.38% (2.9 mmHg)</strong></span>
+      <span class="eclss-item">PRESS: <strong class="press-val" id="eclss-press">101.2 kPa (14.7 psi)</strong></span>
+      <span class="eclss-item">DOSIMETRY: <strong class="rad-val" id="eclss-rad">0.64 mSv/d</strong></span>
+      <span class="eclss-item">DSN DELAY: <strong class="press-val" id="eclss-link">0.0s</strong></span>
+    </div>
+    <div id="report-toast" class="report-toast" role="status"></div>
+  </header>
+  <main>
+    <section class="grid" id="patients"></section>
+  </main>
+
+  <div id="crew-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-crew-title">
+    <div class="modal-panel">
+      <div class="modal-top">
+        <div class="modal-title-group">
+          <h2 id="modal-crew-title">CM-01 // CREW MEMBER</h2>
+          <div class="modal-subtitle" id="modal-crew-subtitle">Mission Role</div>
+        </div>
+        <div class="modal-actions-top">
+          <div class="range-tabs">
+            <button type="button" class="range-tab active" data-range="24h">24 HOURS</button>
+            <button type="button" class="range-tab" data-range="7d">7 DAYS</button>
+            <button type="button" class="range-tab" data-range="mtd" id="tab-mtd">MISSION TO DATE</button>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-modal">✕ CLOSE</button>
+        </div>
+      </div>
+
+      <div class="modal-live-strip">
+        <div class="modal-vitals-grid" id="modal-live-vitals"></div>
+        <div class="modal-ecg-box">
+          <div class="modal-ecg-header">
+            <span id="modal-ecg-rhythm">LIVE ECG</span>
+            <span id="modal-ecg-twave">25 MM/S</span>
+          </div>
+          <canvas id="modal-ecg-canvas" class="modal-ecg-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="modal-charts-grid">
+        <div class="history-chart-card">
+          <div class="history-chart-head">
+            <h3>HEART RATE (BPM) &amp; HRV (MS)</h3>
+            <span class="history-stats" id="stats-hr">AVG —</span>
+          </div>
+          <div class="history-hover-readout" id="hover-hr">Move cursor over waveform to inspect telemetry</div>
+          <canvas id="chart-hr" class="history-canvas"></canvas>
+        </div>
+
+        <div class="history-chart-card">
+          <div class="history-chart-head">
+            <h3>ARTERIAL BLOOD PRESSURE (MMHG)</h3>
+            <span class="history-stats" id="stats-bp">AVG —/—</span>
+          </div>
+          <div class="history-hover-readout" id="hover-bp">Move cursor over waveform to inspect telemetry</div>
+          <canvas id="chart-bp" class="history-canvas"></canvas>
+        </div>
+
+        <div class="history-chart-card">
+          <div class="history-chart-head">
+            <h3>SPO₂ (%) &amp; RESP RATE (/MIN)</h3>
+            <span class="history-stats" id="stats-resp">SPO₂ —% · RR —/MIN</span>
+          </div>
+          <div class="history-hover-readout" id="hover-resp">Move cursor over waveform to inspect telemetry</div>
+          <canvas id="chart-resp" class="history-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="modal-footer-bar">
+        <div class="modal-period-note" id="modal-period-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var latestById = {};
+    var selectedCrewKey = null;
+    var selectedTimeRange = "24h";
+    var cachedHistoryDatasets = {};
+    var currentMissionDay = 0.0;
+    var currentPhaseObj = {};
+
+    var NORMAL_BEAT_KNOTS = [
+      [0, 0], [0.06, 0], [0.085, 0.14], [0.11, 0], [0.17, -0.06], [0.195, 1.75], [0.218, -0.32],
+      [0.27, 0], [0.32, 0], [0.38, 0.22], [0.52, 0], [0.78, 0], [1, 0]
+    ];
+    var SPACE_0G_BEAT_KNOTS = [
+      [0, 0], [0.06, 0], [0.085, 0.13], [0.11, 0], [0.17, -0.06], [0.195, 1.72], [0.218, -0.30],
+      [0.27, 0], [0.33, 0], [0.40, 0.075], [0.55, 0], [0.78, 0], [1, 0]
+    ];
+
+    function fract(x) {
+      return x - Math.floor(x);
+    }
+
+    function interpBeat(phi, useFlatT) {
+      phi = fract(phi);
+      var knots = useFlatT ? SPACE_0G_BEAT_KNOTS : NORMAL_BEAT_KNOTS;
+      for (var i = 0; i < knots.length - 1; i++) {
+        var a = knots[i];
+        var b = knots[i + 1];
+        if (phi >= a[0] && phi <= b[0]) {
+          if (b[0] === a[0]) {
+            return a[1];
+          }
+          var t = (phi - a[0]) / (b[0] - a[0]);
+          return a[1] * (1 - t) + b[1] * t;
+        }
+      }
+      return 0;
+    }
+
+    function sampleEcg(tSec, p) {
+      var rawHr = (p && p.vitals) ? Number(p.vitals.heartRate) : 65;
+      var hr = Math.max(42, Math.min(165, Number.isFinite(rawHr) ? rawHr : 65));
+      var bps = hr / 60;
+      return interpBeat(tSec * bps, Boolean(p && p.tWaveFlat));
+    }
+
+    function drawEcgStrip(canvas, p) {
+      if (!canvas || !p) {
+        return;
+      }
+      var ctx = canvas.getContext("2d");
+      if (!ctx) {
+        return;
+      }
+      var dpr = window.devicePixelRatio || 1;
+      var cw = canvas.clientWidth;
+      var ch = canvas.clientHeight;
+      if (cw <= 0 || ch <= 0) {
+        return;
+      }
+      var w = (canvas.width = cw * dpr);
+      var h = (canvas.height = ch * dpr);
+      ctx.fillStyle = "#050a08";
+      ctx.fillRect(0, 0, w, h);
+
+      var major = dpr * 10;
+      ctx.strokeStyle = "rgba(46, 229, 143, 0.07)";
+      ctx.lineWidth = 1;
+      for (var x = 0; x <= w; x += major) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (var y = 0; y <= h; y += major) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      var scroll = performance.now() / 1000;
+      var windowSec = 5;
+      var isHighG = (p.cardTheme === "high-g");
+      ctx.strokeStyle = isHighG ? "#ff6b6b" : "#2ee58f";
+      ctx.lineWidth = 1.35 * dpr;
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      var midY = h * 0.56;
+      var amp = h * 0.25;
+      for (var i = 0; i <= w; i += 1.5 * dpr) {
+        var t = scroll - ((w - i) / w) * windowSec;
+        var volt = sampleEcg(t, p);
+        var px = i;
+        var py = midY - volt * amp;
+        if (i === 0) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.lineTo(px, py);
+        }
+      }
+      ctx.stroke();
+    }
+
+    function ecgAnimationLoop() {
+      requestAnimationFrame(ecgAnimationLoop);
+      document.querySelectorAll("canvas.ecg-strip").forEach(function (canvas) {
+        var key = canvas.dataset.patientKey;
+        var pt = key ? latestById[key] : null;
+        if (pt) {
+          drawEcgStrip(canvas, pt);
+        }
+      });
+      if (selectedCrewKey && latestById[selectedCrewKey]) {
+        drawEcgStrip(document.getElementById("modal-ecg-canvas"), latestById[selectedCrewKey]);
+      }
+    }
+    requestAnimationFrame(ecgAnimationLoop);
+
+    function escapeHtml(s) {
+      var d = document.createElement("div");
+      d.textContent = s == null ? "" : String(s);
+      return d.innerHTML;
+    }
+
+    /**
+     * Builds historical datasets for:
+     *  - "24h" : Past 24 Hours (Hourly circadian + ARED countermeasure profile)
+     *  - "7d"  : Past 7 Days (Multi-sol autonomic stability)
+     *  - "mtd" : Mission-to-Date (Day 0 Launch through current Mission Day, modeling +3.5g ascent,
+     *            Days 1-14 cephalad fluid shift, settled 0.0g transit, +2.8g EDL, and 0.38g surface)
+     */
+    function getCrewHistory(crewKey, rangeKey) {
+      var mDayBucket = Math.floor(currentMissionDay);
+      var cacheKey = crewKey + "_" + rangeKey + "_" + mDayBucket;
+      if (cachedHistoryDatasets[cacheKey]) {
+        return cachedHistoryDatasets[cacheKey];
+      }
+
+      var entry = latestById[crewKey];
+      var cid = Number(crewKey) || 1;
+      var sensitivity = 0.90 + (cid % 4) * 0.07;
+
+      // Baseline settled 0g values for this crew member
+      var settledHr = 53 + (cid % 5) * 2;
+      var settledHrv = 74 - (cid % 5) * 3;
+      var settledSbp = 105 + (cid % 4) * 2;
+      var settledDbp = 64 + (cid % 3) * 2;
+      var settledRr = 17 + (cid % 2);
+      var settledSpo2 = 98.5;
+
+      var v = (entry && entry.vitals) ? entry.vitals : {
+        heartRate: settledHr,
+        hrv: settledHrv,
+        systolicBP: settledSbp,
+        diastolicBP: settledDbp,
+        respiratoryRate: settledRr,
+        spo2: settledSpo2
+      };
+
+      var points = [];
+      var summaryNote = "";
+
+      if (rangeKey === "mtd") {
+        // Mission-to-Date spans from Day 0 to current mission day (minimum span 14 days for clean resolution)
+        var maxDay = Math.max(14, currentMissionDay);
+        var sampleCount = 32;
+
+        for (var i = 0; i < sampleCount; i++) {
+          var ratio = i / (sampleCount - 1);
+          var dayVal = ratio * maxDay;
+          var phaseWave = Math.sin(i * 0.7 + cid * 1.1);
+
+          var hrDelta = 0;
+          var hrvDelta = 0;
+          var sbpDelta = 0;
+          var dbpDelta = 0;
+          var rrDelta = 0;
+          var spo2Delta = 0;
+          var stageTag = "0g Transit";
+
+          if (dayVal <= 0.6) {
+            // Day 0 Liftoff & TMI (+3.5g)
+            hrDelta = 66 * sensitivity;
+            hrvDelta = -34 * sensitivity;
+            sbpDelta = 36 * sensitivity;
+            dbpDelta = 22 * sensitivity;
+            rrDelta = 7;
+            spo2Delta = -0.6;
+            stageTag = "TMI +3.5g";
+          } else if (dayVal <= 14.0) {
+            // Days 1-14 Cephalad Fluid Shift & Spaceflight Diuresis Decay
+            var decay = 1.0 - ((dayVal - 0.6) / 13.4);
+            hrDelta = 14 * decay * sensitivity;
+            hrvDelta = -8 * decay * sensitivity;
+            sbpDelta = 11 * decay * sensitivity;
+            dbpDelta = 7 * decay * sensitivity;
+            rrDelta = 2 * decay;
+            stageTag = "0g Shift";
+          } else if (dayVal < 209.8) {
+            // Days 15-209 Settled Deep-Space 0g Transit
+            hrDelta = 0;
+            hrvDelta = 0;
+            sbpDelta = 0;
+            dbpDelta = 0;
+            rrDelta = 0;
+            stageTag = "0g Transit";
+          } else if (dayVal <= 210.2) {
+            // Day 210 Mars Atmospheric Entry / EDL (+2.8g)
+            hrDelta = 72 * sensitivity;
+            hrvDelta = -36 * sensitivity;
+            sbpDelta = 32 * sensitivity;
+            dbpDelta = 20 * sensitivity;
+            rrDelta = 8;
+            spo2Delta = -0.6;
+            stageTag = "EDL +2.8g";
+          } else {
+            // Day 210+ Mars Surface Operations (0.38g)
+            hrDelta = 21 * sensitivity;
+            hrvDelta = -13 * sensitivity;
+            sbpDelta = 9 * sensitivity;
+            dbpDelta = 6 * sensitivity;
+            rrDelta = 2;
+            stageTag = "Mars 0.38g";
+          }
+
+          // Snap the final point to the live current telemetry reading
+          var isLast = (i === sampleCount - 1);
+          var hrPt = isLast ? Math.round(v.heartRate) : Math.round(Math.max(46, settledHr + hrDelta + phaseWave * 2.5));
+          var hrvPt = isLast ? Math.round(v.hrv) : Math.round(Math.max(18, settledHrv + hrvDelta - phaseWave * 3.5));
+          var sbpPt = isLast ? Math.round(v.systolicBP) : Math.round(settledSbp + sbpDelta + Math.cos(i * 0.6) * 2.5);
+          var dbpPt = isLast ? Math.round(v.diastolicBP) : Math.round(settledDbp + dbpDelta + Math.sin(i * 0.6) * 2.0);
+          var rrPt = isLast ? Math.round(v.respiratoryRate) : Math.round(settledRr + rrDelta + Math.abs(phaseWave));
+          var spo2Pt = isLast ? Number(Number(v.spo2).toFixed(1)) : Number(Math.min(99.6, Math.max(96.8, settledSpo2 + spo2Delta + Math.cos(i * 0.5) * 0.3)).toFixed(1));
+
+          points.push({
+            label: "Day " + Math.round(dayVal) + " (" + stageTag + ")",
+            shortLabel: "D" + Math.round(dayVal),
+            hr: hrPt,
+            hrv: hrvPt,
+            sbp: sbpPt,
+            dbp: dbpPt,
+            rr: rrPt,
+            spo2: spo2Pt
+          });
+        }
+
+        summaryNote =
+          "MISSION-TO-DATE CUMULATIVE LOG (DAY 0 → DAY " +
+          currentMissionDay.toFixed(1) +
+          " OF 210) // Captures Day 0 +3.5g launch excursion, Days 1–14 cephalad fluid shift & diuresis decay, and settled 0.0g transit equilibrium" +
+          (currentMissionDay >= 210 ? " through Day 210 +2.8g Mars EDL and 0.38g surface touchdown." : ".");
+      } else {
+        var now = new Date();
+        var count = (rangeKey === "24h") ? 24 : 28;
+        var stepMs = (rangeKey === "24h") ? 3600000 : 21600000;
+
+        for (var j = count - 1; j >= 0; j--) {
+          var ts = new Date(now.getTime() - j * stepMs);
+          var idx = count - 1 - j;
+          var wave = idx * 0.55 + cid * 1.1;
+          var lbl = (rangeKey === "24h")
+            ? String(ts.getUTCHours()).padStart(2, "0") + ":00 UTC"
+            : "Day " + Math.max(0, Math.round(currentMissionDay - (j * 0.25)));
+
+          points.push({
+            label: lbl,
+            shortLabel: (rangeKey === "24h") ? String(ts.getUTCHours()).padStart(2, "0") + "h" : lbl,
+            hr: Math.round(Math.max(46, Math.min(155, v.heartRate + Math.sin(wave) * 4))),
+            hrv: Math.round(Math.max(18, Math.min(95, v.hrv - Math.sin(wave) * 5))),
+            sbp: Math.round(Math.max(96, Math.min(165, v.systolicBP + Math.cos(wave * 0.8) * 4))),
+            dbp: Math.round(Math.max(56, Math.min(105, v.diastolicBP + Math.sin(wave * 0.7) * 3))),
+            rr: Math.round(Math.max(14, Math.min(28, v.respiratoryRate + Math.sin(wave * 0.9) * 1.2))),
+            spo2: Number(Math.max(96.0, Math.min(99.8, v.spo2 + Math.cos(wave * 0.6) * 0.4)).toFixed(1))
+          });
+        }
+
+        summaryNote = (rangeKey === "24h")
+          ? "24-HOUR TELEMETRY WINDOW (CURRENT DAY " + currentMissionDay.toFixed(1) + ") // Circadian nocturnal vagal dipping and ARED resistive countermeasure peaks."
+          : "7-DAY TELEMETRY WINDOW (THROUGH DAY " + currentMissionDay.toFixed(1) + ") // Multi-sol autonomic stability across microgravity transit.";
+      }
+
+      var dataset = { points: points, summaryNote: summaryNote };
+      cachedHistoryDatasets[cacheKey] = dataset;
+      return dataset;
+    }
+
+    function renderInteractiveHistoryChart(canvas, points, seriesList, hoverEl, unitSuffix) {
+      if (!canvas || !points.length) {
+        return;
+      }
+      var dpr = window.devicePixelRatio || 1;
+      var cw = canvas.clientWidth || 360;
+      var ch = canvas.clientHeight || 185;
+      canvas.width = cw * dpr;
+      canvas.height = ch * dpr;
+
+      var pad = { top: 14 * dpr, right: 14 * dpr, bottom: 24 * dpr, left: 36 * dpr };
+      var plotW = canvas.width - pad.left - pad.right;
+      var plotH = canvas.height - pad.top - pad.bottom;
+
+      var allVals = [];
+      seriesList.forEach(function (s) {
+        points.forEach(function (pt) {
+          allVals.push(pt[s.key]);
+        });
+      });
+      var minVal = Math.floor(Math.min.apply(null, allVals) - 3);
+      var maxVal = Math.ceil(Math.max.apply(null, allVals) + 3);
+      var span = (maxVal - minVal) || 1;
+
+      function paint(hoverIndex) {
+        var ctx = canvas.getContext("2d");
+        if (!ctx) {
+          return;
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = "rgba(141, 156, 176, 0.12)";
+        ctx.fillStyle = "#566375";
+        ctx.font = (10 * dpr) + "px 'Consolas', monospace";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+
+        for (var g = 0; g <= 4; g++) {
+          var val = minVal + (span * g) / 4;
+          var y = pad.top + plotH - (g / 4) * plotH;
+          ctx.beginPath();
+          ctx.moveTo(pad.left, y);
+          ctx.lineTo(pad.left + plotW, y);
+          ctx.stroke();
+          ctx.fillText(String(Math.round(val)), pad.left - 6 * dpr, y);
+        }
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach(function (idx) {
+          var x = pad.left + (idx / Math.max(1, points.length - 1)) * plotW;
+          ctx.fillText(points[idx].shortLabel || points[idx].label, x, pad.top + plotH + 6 * dpr);
+        });
+
+        seriesList.forEach(function (s) {
+          ctx.strokeStyle = s.color;
+          ctx.lineWidth = 2 * dpr;
+          ctx.lineJoin = "round";
+          ctx.beginPath();
+          points.forEach(function (pt, idx) {
+            var x = pad.left + (idx / Math.max(1, points.length - 1)) * plotW;
+            var y = pad.top + plotH - ((pt[s.key] - minVal) / span) * plotH;
+            if (idx === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+          });
+          ctx.stroke();
+        });
+
+        if (hoverIndex >= 0 && hoverIndex < points.length) {
+          var hx = pad.left + (hoverIndex / Math.max(1, points.length - 1)) * plotW;
+          ctx.strokeStyle = "rgba(56, 217, 245, 0.7)";
+          ctx.lineWidth = 1 * dpr;
+          ctx.beginPath();
+          ctx.moveTo(hx, pad.top);
+          ctx.lineTo(hx, pad.top + plotH);
+          ctx.stroke();
+
+          seriesList.forEach(function (s) {
+            var hy = pad.top + plotH - ((points[hoverIndex][s.key] - minVal) / span) * plotH;
+            ctx.fillStyle = s.color;
+            ctx.beginPath();
+            ctx.arc(hx, hy, 3.8 * dpr, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+      }
+
+      paint(-1);
+      canvas.onmousemove = function (e) {
+        var rect = canvas.getBoundingClientRect();
+        var relX = (e.clientX - rect.left) * dpr - pad.left;
+        var ratio = Math.max(0, Math.min(1, relX / Math.max(1, plotW)));
+        var idx = Math.round(ratio * (points.length - 1));
+        paint(idx);
+        var pt = points[idx];
+        hoverEl.textContent = pt.label + " // " + seriesList.map(function (s) {
+          return s.label + ": " + pt[s.key] + (s.unit || unitSuffix);
+        }).join(" | ");
+      };
+      canvas.onmouseleave = function () {
+        paint(-1);
+        hoverEl.textContent = "Move cursor over waveform to inspect telemetry";
+      };
+    }
+
+    function openCrewModal(crewKey) {
+      selectedCrewKey = crewKey;
+      document.getElementById("crew-modal").classList.add("open");
+      updateCrewModalContent();
+    }
+
+    function closeCrewModal() {
+      selectedCrewKey = null;
+      document.getElementById("crew-modal").classList.remove("open");
+    }
+
+    function renderModalLiveVitals(v) {
+      return (
+        '<div class="modal-vital-box"><div class="lbl">Heart Rate</div><div class="val" style="color:#2ee58f">' + Math.round(v.heartRate) + " bpm</div></div>" +
+        '<div class="modal-vital-box"><div class="lbl">Blood Press</div><div class="val" style="color:#58a6ff">' + Math.round(v.systolicBP) + "/" + Math.round(v.diastolicBP) + "</div></div>" +
+        '<div class="modal-vital-box"><div class="lbl">SpO₂</div><div class="val" style="color:#38d9f5">' + Number(v.spo2).toFixed(1) + "%</div></div>" +
+        '<div class="modal-vital-box"><div class="lbl">Resp Rate</div><div class="val" style="color:#f5b841">' + Math.round(v.respiratoryRate) + "/m</div></div>" +
+        '<div class="modal-vital-box"><div class="lbl">HRV</div><div class="val" style="color:#b88cff">' + Math.round(v.hrv) + " ms</div></div>" +
+        '<div class="modal-vital-box"><div class="lbl">Core Temp</div><div class="val" style="color:#ff6b6b">' + Number(v.temperature).toFixed(1) + "°C</div></div>"
+      );
+    }
+
+    function updateCrewModalContent() {
+      if (!selectedCrewKey || !latestById[selectedCrewKey]) {
+        return;
+      }
+      var p = latestById[selectedCrewKey];
+      var v = p.vitals;
+      document.getElementById("modal-crew-title").textContent = p.displayId + " // " + p.name.toUpperCase() + " (" + p.age + "Y)";
+      document.getElementById("modal-crew-subtitle").textContent = p.role + " · DAY " + currentMissionDay.toFixed(1) + " (" + p.gravityLabel + ") — " + p.diagnosis;
+      document.getElementById("modal-ecg-rhythm").textContent = "LIVE ECG // " + p.displayRhythm.toUpperCase();
+      document.getElementById("modal-ecg-twave").textContent = p.tWaveFlat ? "0G T-WAVE ATTENUATION" : "STANDARD REPOLARIZATION";
+      document.getElementById("modal-live-vitals").innerHTML = renderModalLiveVitals(v);
+      document.getElementById("tab-mtd").textContent = "MISSION TO DATE (D0–D" + Math.round(currentMissionDay) + ")";
+
+      document.querySelectorAll(".range-tab").forEach(function (btn) {
+        btn.classList.toggle("active", btn.dataset.range === selectedTimeRange);
+      });
+
+      var history = getCrewHistory(selectedCrewKey, selectedTimeRange);
+      var pts = history.points;
+
+      var avgHr = Math.round(pts.reduce(function (a, b) { return a + b.hr; }, 0) / pts.length);
+      var avgHrv = Math.round(pts.reduce(function (a, b) { return a + b.hrv; }, 0) / pts.length);
+      document.getElementById("stats-hr").textContent = "AVG " + avgHr + " BPM · HRV " + avgHrv + " MS";
+
+      var avgSbp = Math.round(pts.reduce(function (a, b) { return a + b.sbp; }, 0) / pts.length);
+      var avgDbp = Math.round(pts.reduce(function (a, b) { return a + b.dbp; }, 0) / pts.length);
+      document.getElementById("stats-bp").textContent = "AVG " + avgSbp + "/" + avgDbp + " MMHG";
+
+      var avgSpo2 = (pts.reduce(function (a, b) { return a + b.spo2; }, 0) / pts.length).toFixed(1);
+      var avgRr = Math.round(pts.reduce(function (a, b) { return a + b.rr; }, 0) / pts.length);
+      document.getElementById("stats-resp").textContent = "SPO₂ " + avgSpo2 + "% · RR " + avgRr + "/MIN";
+
+      document.getElementById("modal-period-note").textContent = history.summaryNote;
+
+      renderInteractiveHistoryChart(
+        document.getElementById("chart-hr"),
+        pts,
+        [{ key: "hr", label: "HR", color: "#2ee58f", unit: " bpm" }, { key: "hrv", label: "HRV", color: "#b88cff", unit: " ms" }],
+        document.getElementById("hover-hr"),
+        ""
+      );
+      renderInteractiveHistoryChart(
+        document.getElementById("chart-bp"),
+        pts,
+        [{ key: "sbp", label: "SYS", color: "#58a6ff", unit: " mmHg" }, { key: "dbp", label: "DIA", color: "#b88cff", unit: " mmHg" }],
+        document.getElementById("hover-bp"),
+        " mmHg"
+      );
+      renderInteractiveHistoryChart(
+        document.getElementById("chart-resp"),
+        pts,
+        [{ key: "spo2", label: "SpO₂", color: "#38d9f5", unit: "%" }, { key: "rr", label: "RR", color: "#f5b841", unit: "/min" }],
+        document.getElementById("hover-resp"),
+        ""
+      );
+    }
+
+    document.getElementById("btn-close-modal").addEventListener("click", closeCrewModal);
+    document.getElementById("crew-modal").addEventListener("click", function (e) {
+      if (e.target && e.target.id === "crew-modal") {
+        closeCrewModal();
+      }
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && selectedCrewKey !== null) {
+        closeCrewModal();
+      }
+    });
+    document.querySelectorAll(".range-tab").forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        selectedTimeRange = tab.dataset.range;
+        updateCrewModalContent();
+      });
+    });
+
+    document.getElementById("timeline-bar").addEventListener("click", async function (ev) {
+      var btn = ev.target.closest("[data-phase]");
+      if (!btn) {
+        return;
+      }
+      await fetch("/api/mission/phase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phaseId: btn.dataset.phase })
+      });
+      cachedHistoryDatasets = {};
+      await tick();
+      if (selectedCrewKey) {
+        updateCrewModalContent();
+      }
+    });
+
+    document.getElementById("btn-pause").addEventListener("click", async function () {
+      var r = await fetch("/api/mission/pause", { method: "POST" });
+      var j = await r.json();
+      document.getElementById("btn-pause").textContent = j.paused ? "▶ Resume Sim" : "⏸ Hold Sim";
+    });
+
+    async function postAdjudicatePatient(patientId, action, humanRhythm) {
+      var body = { patientId: patientId, action: action };
+      if (humanRhythm) {
+        body.humanRhythm = humanRhythm;
+      }
+      await fetch("/api/adjudicate/patient", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      await tick();
+    }
+
+    document.getElementById("patients").addEventListener("click", function (ev) {
+      var t = ev.target;
+      if (!(t instanceof HTMLElement)) {
+        return;
+      }
+      var cMon = t.closest('[data-hil="confirm-monitor"]');
+      if (cMon) {
+        ev.stopPropagation();
+        postAdjudicatePatient(Number(cMon.dataset.patientKey), "confirm_monitor");
+        return;
+      }
+      var clr = t.closest('[data-hil="clear-bed"]');
+      if (clr) {
+        ev.stopPropagation();
+        postAdjudicatePatient(Number(clr.dataset.patientKey), "clear");
+        return;
+      }
+      var corr = t.closest('[data-hil="correct-rhythm"]');
+      if (corr) {
+        ev.stopPropagation();
+        var card = corr.closest(".card");
+        var sel = card && card.querySelector(".hil-rhythm-select");
+        if (sel && sel.value) {
+          postAdjudicatePatient(Number(corr.dataset.patientKey), "correct_rhythm", sel.value);
+        }
+        return;
+      }
+      if (t.closest("select, button, input")) {
+        ev.stopPropagation();
+        return;
+      }
+      var clickedCard = t.closest(".card");
+      if (clickedCard && clickedCard.dataset.patientKey) {
+        openCrewModal(clickedCard.dataset.patientKey);
+      }
+    });
+
+    document.getElementById("btn-session-reset").addEventListener("click", async function () {
+      await fetch("/api/session/reset", { method: "POST" });
+      cachedHistoryDatasets = {};
+      tick();
+    });
+
+    document.getElementById("btn-report").addEventListener("click", async function () {
+      var toast = document.getElementById("report-toast");
+      var r = await fetch("/api/report/generate", { method: "POST" });
+      var j = await r.json();
+      toast.textContent = "LOG EXPORTED // " + j.filename + " (" + j.characters + " bytes)";
+      toast.classList.add("show");
+    });
+
+    function drawSpark(canvas, values, color) {
+      if (!canvas || !Array.isArray(values) || values.length < 2) {
+        return;
+      }
+      var ctx = canvas.getContext("2d");
+      var dpr = window.devicePixelRatio || 1;
+      var w = (canvas.width = canvas.clientWidth * dpr);
+      var h = (canvas.height = canvas.clientHeight * dpr);
+      ctx.clearRect(0, 0, w, h);
+      var min = Math.min.apply(null, values);
+      var max = Math.max.apply(null, values);
+      var pad = 3 * dpr;
+      var span = (max - min) || 1;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.4 * dpr;
+      ctx.beginPath();
+      values.forEach(function (v, i) {
+        var x = pad + (i / (values.length - 1)) * (w - 2 * pad);
+        var y = h - pad - ((v - min) / span) * (h - 2 * pad);
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+    }
+
+    function renderPatient(p) {
+      var key = String(p.id);
+      latestById[key] = p;
+      var v = p.vitals;
+      var review = p.humanReview || {};
+      var card = document.createElement("article");
+      var themeClass = "theme-" + (p.cardTheme || "nominal-0g");
+      card.className = "card " + themeClass;
+      card.dataset.patientKey = key;
+
+      var hrInt = Math.round(v.heartRate);
+      var isHighG = (p.cardTheme === "high-g");
+      var barW = Math.min(100, Math.max(0, v.spo2));
+
+      var humanPill = (review.rhythmAgreesWithMonitor === true)
+        ? '<span class="pill human-true">SURGEON VERIFIED</span>'
+        : "";
+      var correctPill = review.humanRecordedRhythm
+        ? '<span class="pill human-true">OVERRIDE: ' + escapeHtml(review.humanRecordedRhythm.toUpperCase()) + "</span>"
+        : "";
+      var tWavePill = p.tWaveFlat
+        ? '<span class="pill space-tag">T-WAVE FLATTENING (0G)</span>'
+        : '<span class="pill space-tag">' + escapeHtml(p.gravityLabel.toUpperCase()) + "</span>";
+
+      card.innerHTML =
+        '<div class="card-header">' +
+          '<div class="crew-ident">' +
+            '<span class="crew-code">' + escapeHtml(p.displayId) + "</span>" +
+            "<strong>" + escapeHtml(p.name) + "</strong>" +
+          "</div>" +
+          '<div class="card-header-right">' +
+            '<span class="dx">' + escapeHtml(String(p.age)) + "Y · " + escapeHtml(p.role) + "</span>" +
+            '<span class="g-badge">' + escapeHtml(p.gravityLabel) + "</span>" +
+            '<span class="expand-hint">⤢ LOGS</span>' +
+          "</div>" +
+        "</div>" +
+        '<div class="rhythm-section">' +
+          '<div class="pills">' +
+            '<span class="pill monitor' + (hrInt > 100 ? " tach" : "") + '">' + escapeHtml(p.displayRhythm.toUpperCase()) + "</span>" +
+            tWavePill +
+            humanPill +
+            correctPill +
+          "</div>" +
+          '<div class="physio-note">' +
+            "<strong>PHYSIO //</strong> " + escapeHtml(p.diagnosis) +
+          "</div>" +
+        "</div>" +
+        '<div class="vitals-section">' +
+          '<div class="vitals-strip">' +
+            '<div class="hr-compact">' +
+              '<span class="hr-num' + (isHighG ? " high-g" : "") + '">' + hrInt + "</span>" +
+              '<span class="hr-label">BPM</span>' +
+            "</div>" +
+            '<div class="vitals-inline">' +
+              '<div class="vital-pill"><span class="vital-lbl">BP</span> <strong class="vital-val v-bp">' + Math.round(v.systolicBP) + "/" + Math.round(v.diastolicBP) + "</strong></div>" +
+              '<div class="vital-pill"><span class="vital-lbl">SPO₂</span> <strong class="vital-val v-spo2">' + Number(v.spo2).toFixed(0) + "%</strong></div>" +
+              '<div class="vital-pill"><span class="vital-lbl">RR</span> <strong class="vital-val v-rr">' + Math.round(v.respiratoryRate) + "/M</strong></div>" +
+              '<div class="vital-pill"><span class="vital-lbl">HRV</span> <strong class="vital-val v-hrv">' + Math.round(v.hrv) + "MS</strong></div>" +
+              '<div class="vital-pill"><span class="vital-lbl">TEMP</span> <strong class="vital-val v-temp">' + Number(v.temperature).toFixed(1) + "°C</strong></div>" +
+            "</div>" +
+          "</div>" +
+          '<div class="bar-wrap"><div class="bar-spo2" style="width:' + barW + '%;"></div></div>' +
+          '<div class="waveforms-row">' +
+            '<div class="ecg-wrap"><canvas class="ecg-strip" data-patient-key="' + key + '"></canvas></div>' +
+            '<div class="spark-wrap"><canvas class="spark" data-spark="hr"></canvas></div>' +
+          "</div>" +
+        "</div>" +
+        '<div class="controls-section">' +
+          '<div class="rhythm-adj">' +
+            '<button type="button" class="btn-hil" data-hil="confirm-monitor" data-patient-key="' + key + '">✓ VERIFY BASELINE</button>' +
+            '<select class="hil-rhythm-select" aria-label="Manual rhythm override">' +
+              '<option value="">MANUAL OVERRIDE…</option>' +
+              '<option value="Normal Sinus Rhythm">Normal Sinus Rhythm</option>' +
+              '<option value="Sinus Bradycardia">Sinus Bradycardia</option>' +
+              '<option value="Sinus Tachycardia">Sinus Tachycardia</option>' +
+            "</select>" +
+            '<button type="button" class="btn-hil" data-hil="correct-rhythm" data-patient-key="' + key + '">SET</button>' +
+            '<button type="button" class="btn-hil" data-hil="clear-bed" data-patient-key="' + key + '">CLR</button>' +
+          "</div>" +
+        "</div>";
+
+      var c = card.querySelector("canvas.spark");
+      requestAnimationFrame(function () {
+        drawSpark(c, p.hrTrend || [], isHighG ? "#ff6b6b" : "#2ee58f");
+      });
+      return card;
+    }
+
+    async function tick() {
+      var err = document.getElementById("load-err");
+      try {
+        var r = await fetch("/api/snapshot", { cache: "no-store" });
+        if (!r.ok) {
+          throw new Error("HTTP " + r.status);
+        }
+        var data = await r.json();
+        err.classList.remove("show");
+
+        var phase = data.phase || {};
+        var eclss = data.eclss || {};
+        var mDay = Number(data.missionDay || 0);
+        var totalDays = Number(data.totalTransitDays || 210);
+        currentMissionDay = mDay;
+        currentPhaseObj = phase;
+        var pct = Math.min(100, Math.max(0, (mDay / totalDays) * 100));
+
+        document.getElementById("phase-badge").textContent = (phase.name || "MISSION ACTIVE").toUpperCase();
+        document.getElementById("mission-day").textContent = "DAY " + mDay.toFixed(1) + " / " + totalDays;
+        document.getElementById("transit-fill").style.width = pct + "%";
+        document.getElementById("eclss-g").textContent = phase.gravityLabel || "0.0g";
+        document.getElementById("eclss-co2").textContent = eclss.co2Percent + "% (" + eclss.co2MmHg + " mmHg)";
+        document.getElementById("eclss-press").textContent = eclss.pressureKpa + " kPa (14.7 psi)";
+        document.getElementById("eclss-rad").textContent = eclss.radiationMsvDay + " mSv/d · " + eclss.spaceWeather;
+        document.getElementById("eclss-link").textContent = eclss.earthLatency || "0.0s";
+
+        var beacon = document.getElementById("status-beacon");
+        if (phase.cardTheme === "high-g") {
+          beacon.style.background = "#ff6b6b";
+          beacon.style.boxShadow = "0 0 12px #ff6b6b";
+        } else if (phase.cardTheme === "mars-surface") {
+          beacon.style.background = "#e86f48";
+          beacon.style.boxShadow = "0 0 12px #e86f48";
+        } else {
+          beacon.style.background = "#2ee58f";
+          beacon.style.boxShadow = "0 0 12px #2ee58f";
+        }
+
+        document.querySelectorAll(".phase-btn").forEach(function (btn) {
+          btn.classList.toggle("active", btn.dataset.phase === phase.id);
+        });
+
+        var root = document.getElementById("patients");
+        root.innerHTML = "";
+        (data.patients || []).forEach(function (p) {
+          root.appendChild(renderPatient(p));
+        });
+
+        if (selectedCrewKey && latestById[selectedCrewKey]) {
+          document.getElementById("modal-live-vitals").innerHTML = renderModalLiveVitals(latestById[selectedCrewKey].vitals);
+          if (selectedTimeRange === "mtd") {
+            updateCrewModalContent();
+          }
+        }
+      } catch (e) {
+        err.classList.add("show");
+      }
+    }
+
+    function clock() {
+      document.getElementById("clock").textContent = new Date().toUTCString().toUpperCase();
+    }
+
+    clock();
+    setInterval(clock, 1000);
+    tick();
+    setInterval(tick, 900);
+  </script>
+</body>
+</html>

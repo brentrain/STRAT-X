@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STRAT-X Live Telemetry Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>STRAT-X Telemetry Node</h1>
+        <div id="time-display">--:--:--</div>
+    </header>
+
+    <div class="status-panel">
+        <div class="status-left">
+            <div id="indicator" class="status-light"></div>
+            <span id="triage-status" class="status-text">INITIALIZING ENGINE...</span>
+        </div>
+        <div id="assessment-text">Awaiting core data packet...</div>
+    </div>
+
+    <!-- 8 Cards arranged in 2 rows of 4 -->
+    <div class="grid">
+        <div class="card">
+            <h3 id="label-a">Heart Rate</h3>
+            <div id="val-a" class="metric-value">--.-</div>
+        </div>
+        <div class="card">
+            <h3 id="label-b">SpO2</h3>
+            <div id="val-b" class="metric-value">--.-</div>
+        </div>
+        <div class="card">
+            <h3 id="label-c">Resp Rate</h3>
+            <div id="val-c" class="metric-value">--.-</div>
+        </div>
+        <div class="card">
+            <h3 id="label-d">Blood Pressure</h3>
+            <div id="val-d" class="metric-value">--/--</div>
+        </div>
+        <div class="card">
+            <h3 id="label-e">QTc Interval</h3>
+            <div id="val-e" class="metric-value">--.-</div>
+        </div>
+        <div class="card">
+            <h3 id="label-f">ST Segment</h3>
+            <div id="val-f" class="metric-value">--.-</div>
+        </div>
+        <div class="card">
+            <h3 id="label-g">Core Temp</h3>
+            <div id="val-g" class="metric-value">--.-</div>
+        </div>
+        <div class="card">
+            <h3 id="label-h">Alert Burden</h3>
+            <div id="val-h" class="metric-value">--.-</div>
+        </div>
+    </div>
+
+    <h2>Activity Triage Log</h2>
+    <div id="log" class="log-panel">
+        <div class="log-entry">System ready. Awaiting connection to Python backend pipeline...</div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

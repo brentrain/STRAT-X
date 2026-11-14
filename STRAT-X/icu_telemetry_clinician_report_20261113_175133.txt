@@ -1,0 +1,133 @@
+ICU TELEMETRY — CLINICIAN REPORT (human-in-the-loop)
+Generated on demand: 2026-11-13 17:51:33
+
+Buttons map to: REAL (confirmed clinical), NOT REAL (false alarm), ARTIFACT, or REVIEWED ONLY (seen but real vs not deferred). Suppressed = noise appendix.
+
+=== RHYTHM ADJUDICATION BY BED ===
+
+Bed 01 — John Smith, age 52; Acute MI
+  Monitor rhythm (classifier): Normal Sinus Rhythm
+  Human rhythm review: NOT RECORDED
+
+Bed 02 — Mary Johnson, age 77; Sepsis
+  Monitor rhythm (classifier): Normal Sinus Rhythm
+  Human rhythm review: NOT RECORDED
+
+Bed 03 — Robert Brown, age 53; Heart Failure
+  Monitor rhythm (classifier): Normal Sinus Rhythm
+  Human rhythm review: NOT RECORDED
+
+Bed 04 — Patricia Davis, age 53; Pneumonia
+  Monitor rhythm (classifier): Normal Sinus Rhythm
+  Human rhythm review: NOT RECORDED
+
+Bed 05 — Michael Wilson, age 66; Post-operative
+  Monitor rhythm (classifier): Sinus Bradycardia
+  Human rhythm review: NOT RECORDED
+
+Bed 06 — Jennifer Moore, age 80; Stroke
+  Monitor rhythm (classifier): Normal Sinus Rhythm
+  Human rhythm review: NOT RECORDED
+
+Bed 07 — William Taylor, age 62; COPD Exacerbation
+  Monitor rhythm (classifier): Normal Sinus Rhythm
+  Human rhythm review: NOT RECORDED
+
+Bed 08 — Linda Anderson, age 67; Respiratory Failure
+  Monitor rhythm (classifier): Normal Sinus Rhythm
+  Human rhythm review: NOT RECORDED
+
+=== REAL ALARMS (you judged YES — clinically real) ===
+(none yet — use “Yes — real alarm” on the dashboard)
+
+=== REVIEWED ONLY (saw the alert; real vs not not decided) ===
+(none)
+
+=== EVENTS AWAITING HUMAN TRIAGE ===
+  • [2026-11-13 17:50:21.414] Bed 08 | ALERT_WARNING | Severe tachycardia: HR 145
+  • [2026-11-13 17:50:22.415] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 145
+  • [2026-11-13 17:50:22.415] Bed 05 | RHYTHM_CHANGE | Rhythm changed to Atrial Fibrillation
+  • [2026-11-13 17:50:23.415] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 158
+  • [2026-11-13 17:50:23.415] Bed 08 | RHYTHM_CHANGE | Rhythm changed to Normal Sinus Rhythm
+  • [2026-11-13 17:50:24.416] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 142
+  • [2026-11-13 17:50:24.416] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 179
+  • [2026-11-13 17:50:25.416] Bed 07 | ALERT_WARNING | Severe tachycardia: HR 158
+  • [2026-11-13 17:50:27.417] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 146
+  • [2026-11-13 17:50:27.418] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 165
+  • [2026-11-13 17:50:27.418] Bed 07 | ALERT_WARNING | Severe tachycardia: HR 180
+  • [2026-11-13 17:50:28.418] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 167
+  • [2026-11-13 17:50:29.419] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 158
+  • [2026-11-13 17:50:30.420] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 146
+  • [2026-11-13 17:50:30.420] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 144
+  • [2026-11-13 17:50:30.420] Bed 07 | ALERT_WARNING | Severe tachycardia: HR 145
+  • [2026-11-13 17:50:31.421] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 141
+  • [2026-11-13 17:50:31.421] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 158
+  • [2026-11-13 17:50:34.423] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 163
+  • [2026-11-13 17:50:35.424] Bed 07 | ALERT_WARNING | Severe tachycardia: HR 141
+  • [2026-11-13 17:50:36.425] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 179
+  • [2026-11-13 17:50:37.426] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 153
+  • [2026-11-13 17:50:37.426] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 178
+  • [2026-11-13 17:50:37.426] Bed 07 | ALERT_WARNING | Severe tachycardia: HR 146
+  • [2026-11-13 17:50:38.426] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 151
+  • [2026-11-13 17:50:39.426] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 153
+  • [2026-11-13 17:50:39.427] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 159
+  • [2026-11-13 17:50:40.427] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 165
+  • [2026-11-13 17:50:41.427] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 148
+  • [2026-11-13 17:50:42.428] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 148
+  • [2026-11-13 17:50:42.428] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 164
+  • [2026-11-13 17:50:43.429] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 169
+  • [2026-11-13 17:50:43.429] Bed 07 | ALERT_WARNING | Severe tachycardia: HR 172
+  • [2026-11-13 17:50:44.430] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 141
+  • [2026-11-13 17:50:44.431] Bed 07 | ALERT_WARNING | Severe tachycardia: HR 144
+  • [2026-11-13 17:50:45.431] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 141
+  • [2026-11-13 17:50:45.431] Bed 07 | RHYTHM_CHANGE | Rhythm changed to Normal Sinus Rhythm
+  • [2026-11-13 17:50:47.433] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 144
+  • [2026-11-13 17:50:48.433] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 151
+  • [2026-11-13 17:50:49.435] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 140
+  • [2026-11-13 17:50:49.435] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 157
+  • [2026-11-13 17:50:50.436] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 152
+  • [2026-11-13 17:50:51.436] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 143
+  • [2026-11-13 17:50:51.437] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 159
+  • [2026-11-13 17:50:53.437] Bed 08 | ARTIFACT_DETECTED | Technical artifact: Baseline Wander
+  • [2026-11-13 17:50:54.438] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 171
+  • [2026-11-13 17:50:55.439] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 144
+  • [2026-11-13 17:50:58.441] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 154
+  • [2026-11-13 17:50:59.442] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 145
+  • [2026-11-13 17:51:02.443] Bed 02 | RHYTHM_CHANGE | Rhythm changed to Atrial Fibrillation
+  • [2026-11-13 17:51:02.443] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 179
+  • [2026-11-13 17:51:03.444] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 161
+  • [2026-11-13 17:51:04.444] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 155
+  • [2026-11-13 17:51:05.444] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 171
+  • [2026-11-13 17:51:05.444] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 169
+  • [2026-11-13 17:51:06.445] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 174
+  • [2026-11-13 17:51:06.445] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 151
+  • [2026-11-13 17:51:10.446] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 172
+  • [2026-11-13 17:51:12.447] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 170
+  • [2026-11-13 17:51:14.449] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 167
+  • [2026-11-13 17:51:14.449] Bed 05 | ALERT_WARNING | Severe tachycardia: HR 174
+  • [2026-11-13 17:51:15.450] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 160
+  • [2026-11-13 17:51:15.450] Bed 05 | RHYTHM_CHANGE | Rhythm changed to Sinus Bradycardia
+  • [2026-11-13 17:51:18.451] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 166
+  • [2026-11-13 17:51:20.453] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 178
+  • [2026-11-13 17:51:22.454] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 156
+  • [2026-11-13 17:51:24.455] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 149
+  • [2026-11-13 17:51:25.455] Bed 02 | ALERT_WARNING | Severe tachycardia: HR 142
+  • [2026-11-13 17:51:26.456] Bed 01 | ARTIFACT_DETECTED | Technical artifact: Loose Lead
+  • [2026-11-13 17:51:26.456] Bed 01 | ALERT_CRITICAL | ASYSTOLE - No heartbeat detected!
+  • [2026-11-13 17:51:26.456] Bed 05 | ARTIFACT_DETECTED | Technical artifact: Baseline Wander
+  • [2026-11-13 17:51:26.456] Bed 06 | ARTIFACT_DETECTED | Technical artifact: Loose Lead
+  • [2026-11-13 17:51:27.456] Bed 01 | ALERT_CRITICAL | ASYSTOLE - No heartbeat detected!
+  • [2026-11-13 17:51:27.456] Bed 02 | RHYTHM_CHANGE | Rhythm changed to Normal Sinus Rhythm
+  • [2026-11-13 17:51:28.457] Bed 01 | ALERT_CRITICAL | ASYSTOLE - No heartbeat detected!
+  • [2026-11-13 17:51:28.457] Bed 06 | ALERT_CRITICAL | ASYSTOLE - No heartbeat detected!
+  • [2026-11-13 17:51:30.458] Bed 01 | ALERT_CRITICAL | ASYSTOLE - No heartbeat detected!
+  • [2026-11-13 17:51:30.459] Bed 06 | ALERT_CRITICAL | ASYSTOLE - No heartbeat detected!
+  • [2026-11-13 17:51:31.459] Bed 06 | ALERT_CRITICAL | ASYSTOLE - No heartbeat detected!
+  • [2026-11-13 17:51:33.461] Bed 06 | ALERT_CRITICAL | ASYSTOLE - No heartbeat detected!
+  … 170 additional pending
+
+=== APPENDIX — SUPPRESSED AS NOISE ===
+[2026-11-13 17:49:16.372] Bed 07 | RHYTHM_CHANGE | Rhythm changed to Normal Sinus Rhythm
+    (human: FALSE ALARM / not clinically relevant)
+
+Summary counts — confirmed: 0 | acknowledged: 0 | suppressed: 1 | pending triage: 250
